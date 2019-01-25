@@ -51,6 +51,12 @@
 #define MRAA_40 40  //P1-40, SPI SCL1
 
 //sensor pins (sensors mapped to pin values) (still have to adjust; just filler for now)
+
+
+
+//SENSORS WILL BE CONNECTED TO I2C
+
+
 const int ACCEL1_PIN = MRAA_11;
 const int ACCEL2_PIN = MRAA_11;
 
