@@ -2,6 +2,7 @@
 
 #define SENSORS_H
 
+#include <mraa/i2c.hpp>
 #include "globals.h"
 
 rawData pollAll() {/*...*/}
@@ -58,10 +59,10 @@ bool calibrateType() {/*...*/}
 class Sensor
 {
 public:
-	Sensor(int pin) {/*...*/}
+	Sensor(int busID, int dataRate):i2c(busID) {/*...*/}
 	//constructor that takes in pin number that sensor is connected to; this pin number would be used for all member functions
 
-	bool calibrate() {/*...*/}
+	virtual bool calibrate() {/*...*/}
 	//zeros sensor to current reading (different sensors will have slightly different implementations)
 	//returns true if successfully calibrated; false otherwise
 	//return type can always be changed to an int to allow for more error returns (status constants described in systems.h or in globals.h files)
@@ -75,9 +76,8 @@ public:
 	//"poll","read","get"; reads raw data from sensor and returns it; maybe into a file? or an input stream? or a member variable of the class/struct? and then preprocess function can pull from that?
 	//rawData type is a placeholder for now; will return raw sensor data
 
-	//will be placed in sensors classes as a member function
 	float preprocess() {/*...*/}
-	//converts raw sensor data into relevant values and 
+	//converts raw sensor data into relevant values 
 
 	bool getStatus() const {/*...*/}
 	//return true if connected and avaiable; false if otherwise
@@ -87,8 +87,22 @@ public:
 	//returns the current set data rate
 
 private:
-	int m_pin;
 	int m_datarate;
+	mraa::I2c i2c; //bus that sensor is connected to
 };
+
+//MRAA info:
+
+//you MUST set the address that the i2c bus is talking to before every read/write to make sure
+//using the i2c.address(uint8_t address) function
+
+
+//when writing to i2c, use i2c.write(buffer,numberofbytes), where the first byte in the buffer
+//contains the i2c command/register to write
+
+//when reading from i2c, use i2c.read(uint8_t* data, int length), which will read the data of
+//specified length and put the number of bytes into the data pointer
+
+
 
 #endif
