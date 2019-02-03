@@ -2,19 +2,8 @@
 
 #define GLOBALS_H
 
-//I2C
+//I2C bus ID
 #define I2C_BUS = 0;
-
-//sensor addresses
-
-const int ADXL345_I2C_ADDR = 0x1D; //or 0x53
-const int ADXL345_I2C_WRITE = 0x3A; //or 0xA6
-const int ADXL345_I2C_READ = 0x3B; //or 0xA7
-
-
-//ADXL345 registers
-
-
 
 //pin mapping to MRAA numbers for Raspberry Pi Model 2 and B+ (https://iotdk.intel.com/docs/master/mraa/rasppi.html)
 //shows abstraction level outright; makes apparent that MRAA abstraction is being used (not some magic numbers)
@@ -58,49 +47,6 @@ const int ADXL345_I2C_READ = 0x3B; //or 0xA7
 #define MRAA_38 38  //P1-38, SPI MOSI1
 #define MRAA_39 39  //P1-39, GND
 #define MRAA_40 40  //P1-40, SPI SCL1
-
-//sensor addresses  (still have to adjust; just filler for now)
-
-
-//SENSORS WILL BE CONNECTED TO I2C
-
-
-// const int ACCEL1_PIN = MRAA_11;
-// const int ACCEL2_PIN = MRAA_11;
-
-// const int GYRO1_PIN = MRAA_11;
-// const int GYRO2_PIN = MRAA_11;
-
-// const int TEMP1_PIN = MRAA_11; //will be removed if barometer has temperature reading capabilities
-// const int TEMP2_PIN = MRAA_11;
-
-// const int BARO1_PIN = MRAA_11;
-// const int BARO2_PIN = MRAA_11;
-
-// const int CURRENT1_PIN = MRAA_11;
-// const int CURRENT2_PIN = MRAA_11;
-
-// const int MAG1_PIN = MRAA_11;
-// const int MAG2_PIN = MRAA_11;
-
-//sensor data transmission rates (still have to adjust; just filler for now)
-const int ACCEL_DATARATE_100_HZ = 100; //might have to have set data rates with constructor of sensor types or a "setdatarate" function within each the sensor classes (not sure how they work completely yet)
-const int ACCEL_DATARATE_400_HZ = 400;
-
-const int GYRO_DATARATE_100_HZ = 100;
-const int GYRO_DATARATE_400_HZ = 400;
-
-const int TEMP_DATARATE_100_HZ = 100;
-const int TEMP_DATARATE_400_HZ = 400;
-
-const int BARO_DATARATE_100_HZ = 100;
-const int BARO_DATARATE_400_HZ = 400;
-
-const int CURRENT_DATARATE_100_HZ = 100;
-const int CURRENT_DATARATE_400_HZ = 400;
-
-const int MAG_DATARATE_100_HZ = 100;
-const int MAG_DATARATE_400_HZ = 400;
 
 //arbritary mapping for function implementations in sensors.h and more
 const int ACCEL = 1;
