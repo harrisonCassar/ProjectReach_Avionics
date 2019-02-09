@@ -32,7 +32,9 @@ struct datapacket {
 bool init(datapacket& dp); {/*...*/}
 //initializes data packet's values to 0...?
 
-bool dump(const datapacket& dp) {/*...*/}
+bool print(const datapacket& dp) {
+  std::cout << "" 
+}
 //prints all of datapacket struct's data members to output screen
 
 bool construct(datapacket& dp) {/*...*/}

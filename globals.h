@@ -3,7 +3,7 @@
 #define GLOBALS_H
 
 //I2C bus ID
-#define I2C_BUS = 0;
+#define I2C_BUS 0;
 
 //pin mapping to MRAA numbers for Raspberry Pi Model 2 and B+ (https://iotdk.intel.com/docs/master/mraa/rasppi.html)
 //shows abstraction level outright; makes apparent that MRAA abstraction is being used (not some magic numbers)
@@ -61,5 +61,12 @@ const int DISCONNECTED = 0;
 const int IDLE = 1; //maybe this as a general status for being mission ready before launch? (this would be right after turn-on)
 const int READY_TO_RECIEVE = 2;
 const int READY_TO_SEND = 3;
+
+//error status IDs
+#define ERROR_ADDR 1
+#define ERROR_POWER 2
+#define ERROR_DATAFORMAT 3
+#define ERROR_CALIB 4
+#define ERROR_POLL 5
 
 #endif

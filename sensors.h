@@ -54,40 +54,74 @@ bool calibrateType() {/*...*/}
 
 //===================================================================================================================
 
-//EACH SENSOR WILL HAVE THEIR OWN CLASSES; THIS IS JUST TO INDICATE THAT EACH SENSOR WILL HAVE THESE GENERAL FUNCTIONS BUT MODIFIED IN SOME WAY
-//i.e. ACCELEROMETER accel1(I2C_BUS_ID);
+//EACH SENSOR WILL HAVE THEIR OWN CLASSES; THIS IS JUST TO INDICATE THAT EACH SENSOR WILL HAVE THESE GENERAL FUNCTIONS BUT MODIFIED IN SOME WAY (sensor is an abstract base class)
+//i.e. ADXL345 accel1(I2C_BUS_ID);
 class Sensor
 {
 public:
-	Sensor(int busID):i2c(busID),m_status(0) {/*...*/}
+	Sensor(int busID, int instance):i2c(busID),m_busID(busID), m_status(DISCONNECTED), m_instance(instance) {/*...*/}
 	//constructor that takes in pin number that sensor is connected to; this pin number would be used for all member functions
 
-	virtual bool calibrate() {/*...*/}
+	virtual bool calibrate() = 0;
 	//zeros sensor to current reading (different sensors will have slightly different implementations)
 	//returns true if successfully calibrated; false otherwise
 	//return type can always be changed to an int to allow for more error returns (status constants described in systems.h or in globals.h files)
 
-	virtual bool poll() {/*...*/}
+	virtual bool poll() = 0;
 	//"poll","read","get"; reads raw data from sensor and places it into sensor's respective member variable; maybe into a file? or an input stream? or a member variable of the class/struct? and then preprocess function can pull from that?
 	//rawData type is a placeholder for now; will return raw sensor data
 
-	virtual bool longPoll() {/*...*/}
+	virtual bool longPoll() = 0; 
 	//call poll() over a longer period of time, averaging out the values (maybe allow time input functionality)
 	//"poll","read","get"; reads raw data from sensor and returns it; maybe into a file? or an input stream? or a member variable of the class/struct? and then preprocess function can pull from that?
 	//rawData type is a placeholder for now; will return raw sensor data
 
-	virtual float preprocess() {/*...*/}
-	//converts raw sensor data into relevant values 
+	virtual float preprocess() = 0;
+	//converts raw sensor data into relevant values
 
-	bool getStatus() const {/*...*/}
-	//return true if connected and avaiable; false if otherwise
-	//return type can always be changed to an int to allow for more error returns (status constants described in systems.h or in globals.h files)
+	virtual void printSensorInfo() = 0;
 
-	void updateStatus(int statusValue) {/*...*/}
+	int getBusID() const
+	{
+		return m_BusID;
+	}
+
+	int getStatus() const
+	{
+		return m_status; 
+	}
+	//return status (operate with interfaced constants described in globals.h)
+
+	int getInstance() const
+	{
+		return m_instance;
+	}
+
+	mraa::I2c getI2C() const
+	{
+		return m_i2c;
+	}
+
+	//status functionality temporarily removed, as may not be needed
+	/*bool updateStatus(int statusValue)
+	{
+		//checking if status is a valid status value
+		if (statusValue >= 0 && statusValue <= 3)
+		{
+			m_status = statusValue;
+			return true;
+		}
+		else
+			return false;
+	}
+	//return true if status was updated successfully (statusValue input was a valid status); false if otherwise
+	*/
 
 private:
 	mraa::I2c m_i2c; //bus that sensor is connected to
-	int m_status;
+	int m_busID;
+	//int m_status; 
+	int m_instance; //support for multiple sensors of same type
 };
 
 //MRAA info:
@@ -97,11 +131,9 @@ private:
 
 
 //when writing to i2c, use i2c.write(buffer,numberofbytes), where the first byte in the buffer
-//contains the i2c command/register to write
+//contains the i2c command/register to write, and the second is the actual 
 
 //when reading from i2c, use i2c.read(uint8_t* data, int length), which will read the data of
 //specified length and put the number of bytes into the data pointer
-
-
 
 #endif
