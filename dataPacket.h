@@ -33,7 +33,7 @@ bool init(datapacket& dp); {/*...*/}
 //initializes data packet's values to 0...?
 
 bool print(const datapacket& dp) {
-  std::cout << "" 
+  std::cout << "";
 }
 //prints all of datapacket struct's data members to output screen
 

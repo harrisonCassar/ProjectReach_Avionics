@@ -14,9 +14,6 @@
 #define ADXL345_I2C_ADDR 0x1D //or 0x53 for address IF ALT ADDRESS pin (Pin 12) is grounded
 #define ADXL345_ID 0x00 //device ID
 
-//const int ADXL345_I2C_WRITE = 0x3A; //or 0xA6
-//const int ADXL345_I2C_READ = 0x3B; //or 0xA7
-
 //control registers
 #define ADXL345_OFSX 0x1E
 #define ADXL345_OFSY 0x1F
@@ -129,7 +126,7 @@ public:
 		}
 
 		//write XOUT_L byte
-		if (m_i2c.writeByte(ADXL345_XOUT_L) != mraa::SUCCESS)
+		if (m_i2c.writeByte(ADXL345_XOUT_L) != mraa::SUCCESS) //maybe remove check for success, as ADXL345_XOUT_L register is not supposed to be "writeable"
 		{
 			std::cerr << "Unable to write ADXL345 XOUT_L byte." << endl;
 			exit(ERROR_POLL);
