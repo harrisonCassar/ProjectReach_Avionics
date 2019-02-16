@@ -144,14 +144,14 @@ public:
 	}
 	//"poll","read","get"; reads raw data from sensor and places it into sensor's respective member variable; maybe into a file as well? or an input stream? and then preprocess function can pull from that?
 
-	virtual bool longPoll() {/*...*/}
-	//call poll() over a longer period of time, averaging out the values (maybe allow time input functionality)
+	virtual bool longPoll() { return false; //dummy}
+	//call poll() over a longer period of time, averaging out the values (maybe allow time input functionality, or just do poll 10 times and average out the values, storing result into rawAccel array)
 	//"poll","read","get"; reads raw data from sensor and returns it; maybe into a file? or an input stream? or a member variable of the class/struct? and then preprocess function can pull from that?
 	//rawData type is a placeholder for now; will return raw sensor data
 
-	virtual float preprocess() {/*...*/}
+	virtual float preprocess() { return 1.0; //dummy}
 	//converts raw sensor data into relevant values
-	//make sure to include offsets in the preprocessing
+	//make sure to include offsets in the preprocessing(?)
 
 	//Scale Factor at XOUT, YOUT, ZOUT ±16 g, 10-bit resolution 28.1 31.2 34.3 mg/LSB
 
@@ -180,7 +180,7 @@ private:
 	mraa::I2c m_i2c;
 	float m_rawAccel[3];
 	float m_processedAccel[3];
-	//need something with offsets for preprocessing/calibration
+	//need something for offsets/scaling for preprocessing/calibration
 	uint8_t m_buffer[BUFFER_SIZE];
 }
 

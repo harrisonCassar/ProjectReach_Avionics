@@ -83,7 +83,7 @@ public:
 
 	int getBusID() const
 	{
-		return m_BusID;
+		return m_busID;
 	}
 
 	int getStatus() const
