@@ -109,6 +109,10 @@ public:
 			std::cerr << "Unable to initial poll ADXL345." << endl;
 			exit(ERROR_POLL);
 		}
+
+		m_offsets[0] = 0.003773584;
+    	m_offsets[1] = 0.003773584;
+    	m_offsets[2] = 0.00390625;
 	};
 
 	virtual bool calibrate() {/*...*/}
@@ -149,7 +153,11 @@ public:
 	//"poll","read","get"; reads raw data from sensor and returns it; maybe into a file? or an input stream? or a member variable of the class/struct? and then preprocess function can pull from that?
 	//rawData type is a placeholder for now; will return raw sensor data
 
-	virtual float preprocess() { return 1.0; //dummy}
+	virtual float preprocess() {
+		m_processedAccel[0] = m_rawAccel[0] * m_offsets[0];
+		m_processedAccel[1] = m_rawAccel[1] * m_offsets[1];
+		m_processedAccel[2] = m_rawAccel[2] * m_offsets[2];
+	}
 	//converts raw sensor data into relevant values
 	//make sure to include offsets in the preprocessing(?)
 
@@ -180,6 +188,7 @@ private:
 	mraa::I2c m_i2c;
 	float m_rawAccel[3];
 	float m_processedAccel[3];
+	float m_offsets[3];
 	//need something for offsets/scaling for preprocessing/calibration
 	uint8_t m_buffer[BUFFER_SIZE];
 }
