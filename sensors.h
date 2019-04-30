@@ -62,6 +62,9 @@ public:
 	Sensor(int busID, int instance):i2c(busID),m_busID(busID), m_status(DISCONNECTED), m_instance(instance) {/*...*/}
 	//constructor that takes in pin number that sensor is connected to; this pin number would be used for all member functions
 
+	virtual bool powerOn();
+	virtual bool powerOff();
+
 	virtual bool calibrate() = 0;
 	//zeros sensor to current reading (different sensors will have slightly different implementations)
 	//returns true if successfully calibrated; false otherwise
@@ -70,6 +73,7 @@ public:
 	virtual bool poll() = 0;
 	//"poll","read","get"; reads raw data from sensor and places it into sensor's respective member variable; maybe into a file? or an input stream? or a member variable of the class/struct? and then preprocess function can pull from that?
 	//rawData type is a placeholder for now; will return raw sensor data
+	//will preprocess the information within function call
 
 	virtual bool longPoll() = 0; 
 	//call poll() over a longer period of time, averaging out the values (maybe allow time input functionality)
