@@ -4,7 +4,7 @@
 
 int main()
 {
-	LSM6DS33 lsm6(0,1);
+	LSM6DS33 lsm6(0, 1);
 
 	std::cout << "Input number of desired readings: " << std::endl;
 	unsigned int numOfReadings;
@@ -20,7 +20,7 @@ int main()
 
 	std::cout << std::endl << std::endl;
 	std::cout << "getBusID: " << lsm6.getBusID() << std::endl;
-	std::cout << "getStatus: " << lsm6.getStatus() << std::endl;
+	//std::cout << "getStatus: " << lsm6.getStatus() << std::endl;
 	std::cout << "getInstance: " << lsm6.getInstance() << std::endl;
 	//std::cout << "getI2C: " << lsm6.getI2C() << std::endl;
 
