@@ -128,16 +128,4 @@ private:
 	int m_instance; //support for multiple sensors of same type
 };
 
-//MRAA info:
-
-//you MUST set the address that the i2c bus is talking to before every read/write to make sure
-//using the i2c.address(uint8_t address) function
-
-
-//when writing to i2c, use i2c.write(buffer,numberofbytes), where the first byte in the buffer
-//contains the i2c command/register to write, and the second is the actual 
-
-//when reading from i2c, use i2c.read(uint8_t* data, int length), which will read the data of
-//specified length and put the number of bytes into the data pointer
-
 #endif
