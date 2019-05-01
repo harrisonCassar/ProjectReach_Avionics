@@ -134,12 +134,12 @@ public:
 			exit(ERROR_POWER);
 		}
 
-		//run calibration of sensor
+		/*//run calibration of sensor
 		if (calibrate() == false)
 		{
 			std::cerr << "Unsuccessful LSM6DS33 calibration." << endl;
 			exit(ERROR_CALIB); //might not be wanted, as calibration could be potentially not required
-		}
+		}*/
 
 		//run first update of sensor
 		if (poll() == false)
@@ -195,9 +195,11 @@ public:
     	m_gyro_raw[0] = ((m_buffer[9] << 8 ) | m_buffer[8]);
     	m_gyro_raw[1] = ((m_buffer[11] << 8 ) | m_buffer[10]);
     	m_gyro_raw[2] = ((m_buffer[13] << 8 ) | m_buffer[12]);
+
+    	return true;
 	}
 
-	virtual bool longPoll() { return false; /*dummy*/}
+	//virtual bool longPoll() { return false; /*dummy*/}
 	//call poll() over a longer period of time, averaging out the values (maybe allow time input functionality, or just do poll 10 times and average out the values, storing result into rawAccel array)
 	//"poll","read","get"; reads raw data from sensor and returns it; maybe into a file? or an input stream? or a member variable of the class/struct? and then preprocess function can pull from that?
 	//rawData type is a placeholder for now; will return raw sensor data
@@ -239,6 +241,19 @@ public:
 		std::cout << "Gyro_ProcessedX: " << m_gyro_processed[0] << endl;
 		std::cout << "Gyro_ProcessedY: " << m_gyro_processed[1] << endl;
 		std::cout << "Gyro_ProcessedZ: " << m_gyro_processed[2] << endl;
+	}
+
+	void printRawValues()
+	{
+		std::cout << "======================================" << endl;
+		std::cout << "Temp_Raw: " << m_temp_raw << endl;
+		std::cout << "Accel_RawX: " << m_accel_raw[0] << endl;
+		std::cout << "Accel_RawY: " << m_accel_raw[1] << endl;
+		std::cout << "Accel_RawZ: " << m_accel_raw[2] << endl;
+		std::cout << "Gyro_RawX: " << m_gyro_raw[0] << endl;
+		std::cout << "Gyro_RawY: " << m_gyro_raw[1] << endl;
+		std::cout << "Gyro_RawZ: " << m_gyro_raw[2] << endl;
+		std::cout << "======================================" << endl;
 	}
 
 private:
