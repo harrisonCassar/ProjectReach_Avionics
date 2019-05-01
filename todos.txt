@@ -10,6 +10,7 @@ Most recent suggestions place on top; older towards bottom. Confirmed design cha
 -Have poll() of derived classes from "Sensor" abstract base class return instance of "Data" struct
 -Remove all sensor's separation between "raw" and "processed" data in array data members (remove both)
 -Update "datapacket" struct by removing unnecessary data members, and include new ones (such as current/power usage readings)
+-Add "PowerOn" and "PowerOff" functions to sensor base class as suggested by PDR
 
 ==========================================SUGGESTIONS:==========================================
 
