@@ -2,7 +2,7 @@ This document will be used for listing TODOs or ideas for re-designing of code t
 
 This document will have a running record of these TODOs or ideas including who made the suggestion and when did they make it. This helps to identify and keep track of certain ideas/changes that will be made to the code (or will potentially be made).
 
-Most recent suggestions place on top; older towards bottom. Confirmed design changes place in the "TODO" section.
+Most recent suggestions place on top; older towards bottom. Confirmed design changes place in the "TODO" section. Finished major design changes, move from "TODO" to "DONE" section
 
 =============================================TODO:=============================================
 
@@ -21,3 +21,6 @@ Harrison Cassar, 4/30/19
 -LSM6DS33 has a STATUS_REG that can be checked for its individual bits to see if data is available for temp/gyro/accelerometer (look into this, as could use as a way to see if read-in data is just old data that was never updated)
 -Look into self-test feature for LSM6DS33 talked about on page 51/78 of datasheet for CTRL5_C register
 -Look into "wake-up" feature for LSM6DS33 (well for any sensor really) for each of the accel and gyro outputs (potential for "not reading data at high rate until hitting X g's")
+
+=============================================DONE:=============================================
+
