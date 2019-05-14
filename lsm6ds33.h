@@ -15,7 +15,7 @@
 #define DATA_REG_SIZE 14
 
 //address
-#define LSM6DS33_I2C_ADDR 0xD6 //7-bit address form; default in 'write' state; implies connection to supply voltage; 0xD4 for connection to ground; general form: 110101xb
+#define LSM6DS33_I2C_ADDR 0x6A //7-bit address form; default in 'write' state; implies connection to supply voltage; 0xD4 for connection to ground; general form: 110101xb
 
 /*
 The Slave ADdress (SAD) associated to the LSM6DS33 is 110101xb. The SDO/SA0 pin
@@ -116,6 +116,25 @@ public:
 		//change from default accelerometer full-scale selection to +-16g instead of +-2g
 		m_buffer[0] = LSM6DS33_CTRL1_XL;
 		m_buffer[1] = LSM6DS33_ACCEL_POWER_ON | 0x4;
+		
+		if (m_i2c.write(m_buffer, 2) == mraa::ERROR_INVALID_PARAMETER)
+			std::cerr << "Invalid parameter." << std::endl;
+		if (m_i2c.write(m_buffer, 2) == mraa::ERROR_INVALID_HANDLE)
+			std::cerr << "ERROR_INVALID_HANDLE" << std::endl;
+		if (m_i2c.write(m_buffer, 2) == mraa::ERROR_NO_RESOURCES)
+			std::cerr << "ERROR_NO_RESOURCES" << std::endl;
+		if (m_i2c.write(m_buffer, 2) == mraa::ERROR_INVALID_RESOURCE)
+			std::cerr << "ERROR_INVALID_RESOURCE" << std::endl;
+		if (m_i2c.write(m_buffer, 2) == mraa::ERROR_INVALID_QUEUE_TYPE)
+			std::cerr << "ERROR_INVALID_QUEUE_TYPE" << std::endl;
+		if (m_i2c.write(m_buffer, 2) == mraa::ERROR_NO_DATA_AVAILABLE)
+			std::cerr << "ERROR_NO_DATA_AVAILABLE" << std::endl;
+		if (m_i2c.write(m_buffer, 2) == mraa::ERROR_INVALID_PLATFORM)
+			std::cerr << "ERROR_INVALID_PLATFORM" << std::endl;
+		if (m_i2c.write(m_buffer, 2) == mraa::ERROR_PLATFORM_NOT_INITIALISED)
+			std::cerr << "ERROR_PLATFORM_NOT_INITIALISED" << std::endl;
+		if (m_i2c.write(m_buffer, 2) == mraa::ERROR_UNSPECIFIED)
+			std::cerr << "ERROR_UNSPECIFIED" << std::endl;
 
 		if (m_i2c.write(m_buffer, 2) != mraa::SUCCESS)
 		{
@@ -127,7 +146,7 @@ public:
 		//change from default gyroscope full-scale selection to +-, 'OR' value here with LSM6DS33_GYRO_POWER_ON
 		m_buffer[0] = LSM6DS33_CTRL2_G;
 		m_buffer[1] = LSM6DS33_GYRO_POWER_ON; //MIGHT WANT TO CHANGE THIS 
-
+		
 		if (m_i2c.write(m_buffer, 2) != mraa::SUCCESS)
 		{
 			std::cerr << "Unable to write GYRO_POWER_ON to LSM6DS33." << std::endl;
