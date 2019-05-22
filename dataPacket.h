@@ -17,9 +17,9 @@ struct datapacket {
   float gyro_y;
   float gyro_z;
   float mag_x;
-  float mag_y;
-  float mag_z;
-  float mag_heading; 
+  //float mag_y;
+  //float mag_z;
+  //float mag_heading; 
   float temp_tempC;
   float baro_pressure; // in mmHg
   float baro_altitude; // in meters
