@@ -60,7 +60,7 @@
 class Sensor
 {
 public:
-	Sensor(int busID, int instance) :i2c(busID), m_busID(busID), /*m_status(DISCONNECTED),*/ m_instance(instance) {/*...*/ }
+	Sensor(int busID, int instance) : m_i2c(busID), m_busID(busID), /*m_status(DISCONNECTED),*/ m_instance(instance) {/*...*/ }
 	//constructor that takes in pin number that sensor is connected to; this pin number would be used for all member functions
 
 	//virtual bool powerOn();
