@@ -134,13 +134,6 @@ public:
 			exit(ERROR_POWER);
 		}
 
-		/*//run calibration of sensor
-		if (calibrate() == false)
-		{
-			std::cerr << "Unsuccessful LSM6DS33 calibration." << endl;
-			exit(ERROR_CALIB); //might not be wanted, as calibration could be potentially not required
-		}*/
-
 		//run first update of sensor
 		if (poll() == false)
 		{
@@ -157,11 +150,6 @@ public:
 		m_gyro_offsets[1] = 1;
 		m_gyro_offsets[2] = 1;
 	}
-
-	virtual bool calibrate() {/*...*/ }
-	//zeros sensor to current reading (different sensors will have slightly different implementations)
-	//returns true if successfully calibrated; false otherwise
-	//return type can always be changed to an int to allow for more error returns (status constants described in systems.h or in globals.h files)
 
 	virtual bool poll()
 	{
@@ -186,15 +174,16 @@ public:
 
 		//record rawacceleration values using data reads for x,y,z respectively
 		//DATAx0 is the least significant byte, and DATAx1 is the most significant byte
-		m_temp_raw = ((m_buffer[1] << 8) | m_buffer[0]);
+		//conversion of raw sensor data into relevant values based on constant offset values
+		m_temp_raw = ((m_buffer[1] << 8) | m_buffer[0]) * m_temp_offset;
 
-		m_accel_raw[0] = ((m_buffer[3] << 8) | m_buffer[2]);
-		m_accel_raw[1] = ((m_buffer[5] << 8) | m_buffer[4]);
-		m_accel_raw[2] = ((m_buffer[7] << 8) | m_buffer[6]);
+		m_accel[0] = ((m_buffer[3] << 8) | m_buffer[2]) * m_accel_offsets[0];
+		m_accel[1] = ((m_buffer[5] << 8) | m_buffer[4]) * m_accel_offsets[1];
+		m_accel[2] = ((m_buffer[7] << 8) | m_buffer[6]) * m_accel_offsets[2];
 
-		m_gyro_raw[0] = ((m_buffer[9] << 8) | m_buffer[8]);
-		m_gyro_raw[1] = ((m_buffer[11] << 8) | m_buffer[10]);
-		m_gyro_raw[2] = ((m_buffer[13] << 8) | m_buffer[12]);
+		m_gyro[0] = ((m_buffer[9] << 8) | m_buffer[8]) * m_gyro_offsets[0];
+		m_gyro[1] = ((m_buffer[11] << 8) | m_buffer[10]) * m_gyro_offsets[1];
+		m_gyro[2] = ((m_buffer[13] << 8) | m_buffer[12]) * m_gyro_offsets[2];
 
 		return true;
 	}
@@ -204,66 +193,34 @@ public:
 	//"poll","read","get"; reads raw data from sensor and returns it; maybe into a file? or an input stream? or a member variable of the class/struct? and then preprocess function can pull from that?
 	//rawData type is a placeholder for now; will return raw sensor data
 
-	virtual float preprocess()
-	{
-		//conversion of raw sensor data into relevant values based on constant offset values
-		m_temp_processed = m_temp_raw * m_temp_offset;
-
-		m_accel_processed[0] = m_accel_raw[0] * m_accel_offsets[0];
-		m_accel_processed[1] = m_accel_raw[1] * m_accel_offsets[1];
-		m_accel_processed[2] = m_accel_raw[2] * m_accel_offsets[2];
-
-		m_gyro_processed[0] = m_gyro_raw[0] * m_gyro_offsets[0];
-		m_gyro_processed[1] = m_gyro_raw[1] * m_gyro_offsets[1];
-		m_gyro_processed[2] = m_gyro_raw[2] * m_gyro_offsets[2];
-	}
-
 	virtual void printSensorInfo()
 	{
-		std::cout << "Type: ADXL345" << std::endl;
+		std::cout << "======================================" << std::endl;
+		std::cout << "Type: LSM6DS33" << std::endl;
 		std::cout << "Number: " << getInstance() << std::endl;
 		//std::cout << "Status:     " << getStatus() << std::endl;
 		std::cout << "I2C BusID: " << getBusID() << std::endl;
-
-		std::cout << "Temp_Raw: " << m_temp_raw << std::endl;
-		std::cout << "Temp_Processed: " << m_temp_processed << std::endl;
-
-		std::cout << "Accel_RawX: " << m_accel_raw[0] << std::endl;
-		std::cout << "Accel_RawY: " << m_accel_raw[1] << std::endl;
-		std::cout << "Accel_RawZ: " << m_accel_raw[2] << std::endl;
-		std::cout << "Accel_ProcessedX: " << m_accel_processed[0] << std::endl;
-		std::cout << "Accel_ProcessedY: " << m_accel_processed[1] << std::endl;
-		std::cout << "Accel_ProcessedZ: " << m_accel_processed[2] << std::endl;
-
-		std::cout << "Gyro_RawX: " << m_gyro_raw[0] << std::endl;
-		std::cout << "Gyro_RawY: " << m_gyro_raw[1] << std::endl;
-		std::cout << "Gyro_RawZ: " << m_gyro_raw[2] << std::endl;
-		std::cout << "Gyro_ProcessedX: " << m_gyro_processed[0] << std::endl;
-		std::cout << "Gyro_ProcessedY: " << m_gyro_processed[1] << std::endl;
-		std::cout << "Gyro_ProcessedZ: " << m_gyro_processed[2] << std::endl;
+		std::cout << "======================================" << std::endl;
 	}
 
-	void printRawValues()
+	void printValues()
 	{
 		std::cout << "======================================" << std::endl;
-		std::cout << "Temp_Raw: " << m_temp_raw << std::endl;
-		std::cout << "Accel_RawX: " << m_accel_raw[0] << std::endl;
-		std::cout << "Accel_RawY: " << m_accel_raw[1] << std::endl;
-		std::cout << "Accel_RawZ: " << m_accel_raw[2] << std::endl;
-		std::cout << "Gyro_RawX: " << m_gyro_raw[0] << std::endl;
-		std::cout << "Gyro_RawY: " << m_gyro_raw[1] << std::endl;
-		std::cout << "Gyro_RawZ: " << m_gyro_raw[2] << std::endl;
+		std::cout << "Temp: " << m_temp << std::endl;
+		std::cout << "AccelX: " << m_accel[0] << std::endl;
+		std::cout << "AccelY: " << m_accel[1] << std::endl;
+		std::cout << "AccelZ: " << m_accel[2] << std::endl;
+		std::cout << "GyroX: " << m_gyro[0] << std::endl;
+		std::cout << "GyroY: " << m_gyro[1] << std::endl;
+		std::cout << "GyroZ: " << m_gyro[2] << std::endl;
 		std::cout << "======================================" << std::endl;
 	}
 
 private:
 	mraa::I2c m_i2c;
-	float m_temp_raw;
-	float m_temp_processed;
-	float m_accel_raw[3];
-	float m_accel_processed[3];
-	float m_gyro_raw[3];
-	float m_gyro_processed[3];
+	float m_temp;
+	float m_accel[3];
+	float m_gyro[3];
 	float m_temp_offset;
 	float m_accel_offsets[3]; //offsets for temp, accel, and gyro for proper calibration purposes
 	float m_gyro_offsets[3];

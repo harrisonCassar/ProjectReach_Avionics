@@ -66,7 +66,7 @@ public:
 	//virtual bool powerOn();
 	//virtual bool powerOff();
 
-	virtual bool calibrate() = 0;
+	//virtual bool calibrate() { /* ... */ };
 	//zeros sensor to current reading (different sensors will have slightly different implementations)
 	//returns true if successfully calibrated; false otherwise
 	//return type can always be changed to an int to allow for more error returns (status constants described in systems.h or in globals.h files)
@@ -81,7 +81,7 @@ public:
 	//"poll","read","get"; reads raw data from sensor and returns it; maybe into a file? or an input stream? or a member variable of the class/struct? and then preprocess function can pull from that?
 	//rawData type is a placeholder for now; will return raw sensor data
 
-	virtual float preprocess() = 0;
+	//virtual float preprocess() { /* ... */ };
 	//converts raw sensor data into relevant values
 
 	virtual void printSensorInfo() = 0;
