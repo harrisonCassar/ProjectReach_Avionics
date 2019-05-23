@@ -60,11 +60,11 @@
 class Sensor
 {
 public:
-	Sensor(int busID, int instance) : m_i2c(busID), m_busID(busID), /*m_status(DISCONNECTED),*/ m_instance(instance) {/*...*/ }
+	Sensor(int busID, int instance) : m_i2c(busID), m_busID(busID), m_status(STATUS_OFF), m_instance(instance) {/*...*/ }
 	//constructor that takes in pin number that sensor is connected to; this pin number would be used for all member functions
 
-	//virtual bool powerOn();
-	//virtual bool powerOff();
+	virtual int powerOn() = 0;
+	virtual int powerOff() = 0;
 
 	//virtual bool calibrate() { /* ... */ };
 	//zeros sensor to current reading (different sensors will have slightly different implementations)
@@ -86,16 +86,18 @@ public:
 
 	virtual void printSensorInfo() = 0;
 
+	virtual void printValues() { /* ... */ };
+
 	int getBusID() const
 	{
 		return m_busID;
 	}
 
-	/*int getStatus() const
-	{
-		return m_status;
-	}*/
-	//return status (operate with interfaced constants described in globals.h)
+ 	virtual int getStatus() const
+ 	{
+ 		return m_status;
+	}
+	// //return status (operate with interfaced constants described in globals.h)
 
 	int getInstance() const
 	{
@@ -121,11 +123,11 @@ public:
 	}
 	//return true if status was updated successfully (statusValue input was a valid status); false if otherwise
 	*/
-
+ protected:
+ 	int m_status;
 private:
 	mraa::I2c m_i2c; //bus that sensor is connected to
 	int m_busID;
-	//int m_status; 
 	int m_instance; //support for multiple sensors of same type
 };
 
