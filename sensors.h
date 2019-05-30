@@ -60,13 +60,13 @@
 class Sensor
 {
 public:
-	Sensor(int busID, int instance) : m_i2c(busID), m_busID(busID), /*m_status(DISCONNECTED),*/ m_instance(instance) {/*...*/ }
+	Sensor(int busID, int instance) : m_i2c(busID), m_busID(busID), m_status(STATUS_OFF), m_instance(instance) {/*...*/ }
 	//constructor that takes in pin number that sensor is connected to; this pin number would be used for all member functions
 
-	//virtual bool powerOn();
-	//virtual bool powerOff();
+	virtual int powerOn() = 0;
+	virtual int powerOff() = 0;
 
-	virtual bool calibrate() = 0;
+	//virtual bool calibrate() { /* ... */ };
 	//zeros sensor to current reading (different sensors will have slightly different implementations)
 	//returns true if successfully calibrated; false otherwise
 	//return type can always be changed to an int to allow for more error returns (status constants described in systems.h or in globals.h files)
@@ -81,21 +81,23 @@ public:
 	//"poll","read","get"; reads raw data from sensor and returns it; maybe into a file? or an input stream? or a member variable of the class/struct? and then preprocess function can pull from that?
 	//rawData type is a placeholder for now; will return raw sensor data
 
-	virtual float preprocess() = 0;
+	//virtual float preprocess() { /* ... */ };
 	//converts raw sensor data into relevant values
 
 	virtual void printSensorInfo() = 0;
+
+	virtual void printValues() { /* ... */ };
 
 	int getBusID() const
 	{
 		return m_busID;
 	}
 
-	/*int getStatus() const
-	{
-		return m_status;
-	}*/
-	//return status (operate with interfaced constants described in globals.h)
+ 	virtual int getStatus() const
+ 	{
+ 		return m_status;
+	}
+	// //return status (operate with interfaced constants described in globals.h)
 
 	int getInstance() const
 	{
@@ -121,11 +123,11 @@ public:
 	}
 	//return true if status was updated successfully (statusValue input was a valid status); false if otherwise
 	*/
-
+ protected:
+ 	int m_status;
 private:
 	mraa::I2c m_i2c; //bus that sensor is connected to
 	int m_busID;
-	//int m_status; 
 	int m_instance; //support for multiple sensors of same type
 };
 

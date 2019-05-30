@@ -103,13 +103,28 @@ LSB is 0 (8th bit in address) for write
 class LSM6DS33 : public Sensor
 {
 public:
-	LSM6DS33(int busID, int instance) :Sensor(busID, instance), m_i2c(busID)
+	LSM6DS33(int busID, int instance): Sensor(busID, instance), m_i2c(busID)
 	{
+		//set offsets
+		m_temp_offset = 1;
+		m_accel_offsets[0] = 1; //THESE VALUES HAVE NOT BEEN TESTED FOR YET
+		m_accel_offsets[1] = 1;
+		m_accel_offsets[2] = 1;
+		m_gyro_offsets[0] = 1; //THESE VALUES HAVE NOT BEEN TESTED FOR YET
+		m_gyro_offsets[1] = 1;
+		m_gyro_offsets[2] = 1;
+	}
+
+	virtual int powerOn()
+	{
+		if (m_status == STATUS_IDLE)
+			return RESULT_SUCCESS;
+
 		//set I2C address
 		if (m_i2c.address(LSM6DS33_I2C_ADDR) != mraa::SUCCESS)
 		{
 			std::cerr << "Unable to set I2C address." << std::endl;
-			exit(ERROR_ADDR);
+			return ERROR_ADDR;
 		}
 
 		//send "Power On" command for accelerometer
@@ -139,7 +154,7 @@ public:
 		if (m_i2c.write(m_buffer, 2) != mraa::SUCCESS)
 		{
 			std::cerr << "Unable to write ACCEL_POWER_ON to LSM6DS33." << std::endl;
-			exit(ERROR_POWER);
+			return ERROR_POWER;
 		}
 
 		//send "Power On" command for gyroscope
@@ -150,72 +165,119 @@ public:
 		if (m_i2c.write(m_buffer, 2) != mraa::SUCCESS)
 		{
 			std::cerr << "Unable to write GYRO_POWER_ON to LSM6DS33." << std::endl;
-			exit(ERROR_POWER);
+			return ERROR_POWER;
 		}
-
-		/*//run calibration of sensor
-		if (calibrate() == false)
-		{
-			std::cerr << "Unsuccessful LSM6DS33 calibration." << endl;
-			exit(ERROR_CALIB); //might not be wanted, as calibration could be potentially not required
-		}*/
 
 		//run first update of sensor
 		if (poll() == false)
 		{
 			std::cerr << "Unable to initial poll LSM6DS33." << std::endl;
-			exit(ERROR_POLL);
+			return ERROR_POLL;
 		}
 
-		//set offsets
-		m_temp_offset = 1;
-		m_accel_offsets[0] = 1; //THESE VALUES HAVE NOT BEEN TESTED FOR YET
-		m_accel_offsets[1] = 1;
-		m_accel_offsets[2] = 1;
-		m_gyro_offsets[0] = 1; //THESE VALUES HAVE NOT BEEN TESTED FOR YET
-		m_gyro_offsets[1] = 1;
-		m_gyro_offsets[2] = 1;
+		m_status = STATUS_IDLE;
+
+		return RESULT_SUCCESS;
 	}
 
-	virtual bool calibrate() {/*...*/ }
-	//zeros sensor to current reading (different sensors will have slightly different implementations)
-	//returns true if successfully calibrated; false otherwise
-	//return type can always be changed to an int to allow for more error returns (status constants described in systems.h or in globals.h files)
-
-	virtual bool poll()
+	virtual int powerOff()
 	{
-		/*
-		NOTE: STATUS_REG can be used to check if data is available for temp/gyro/accel
-		Look into this, as could use as a way to see if read-in data is just old data that was never updated
-		*/
+		if (m_status == STATUS_OFF)
+			return RESULT_SUCCESS;
 
 		//set I2C address
 		if (m_i2c.address(LSM6DS33_I2C_ADDR) != mraa::SUCCESS)
 		{
 			std::cerr << "Unable to set I2C address." << std::endl;
-			exit(ERROR_ADDR);
+			return ERROR_ADDR;
+		}
+
+		//send "Power Off" command for accelerometer
+		m_buffer[0] = LSM6DS33_CTRL1_XL;
+		m_buffer[1] = LSM6DS33_POWER_OFF;
+
+		if (m_i2c.write(m_buffer, 2) != mraa::SUCCESS)
+		{
+			std::cerr << "Unable to write POWER_OFF to LSM6DS33's Accelerometer." << std::endl;
+			return ERROR_POWER;
+		}
+
+		//send "Power Off" command for gyroscope
+		m_buffer[0] = LSM6DS33_CTRL2_G;
+		m_buffer[1] = LSM6DS33_POWER_OFF;
+
+		if (m_i2c.write(m_buffer, 2) != mraa::SUCCESS)
+		{
+			std::cerr << "Unable to write POWER_OFF to LSM6DS33's Gyroscope." << std::endl;
+			return ERROR_POWER;
+		}
+
+		m_status = STATUS_OFF;
+
+		return RESULT_SUCCESS;
+	}
+
+	//returns RESULT_FALSE if no new data, RESULT_SUCCESS if member data was updated with latest reading, ERROR in the case of an error
+	virtual int poll()
+	{
+		if (m_status == STATUS_OFF)
+			return ERROR_INVALID_STATUS;
+
+		if (hasNewData() == RESULT_FALSE)
+			return RESULT_FALSE;
+
+		//set I2C address
+		if (m_i2c.address(LSM6DS33_I2C_ADDR) != mraa::SUCCESS)
+		{
+			std::cerr << "Unable to set I2C address." << std::endl;
+			return ERROR_ADDR;
 		}
 
 		//read temp,x,y,z (14 bytes) into buffer
 		if (m_i2c.readBytesReg(LSM6DS33_OUT_TEMP_L, m_buffer, DATA_REG_SIZE) == -1)
 		{
 			std::cerr << "Unable to read data bytes starting from LSM6DS33_OUT_TEMP_L." << std::endl;
-			exit(ERROR_POLL);
+			return ERROR_POLL;
 		}
 
 		//record rawacceleration values using data reads for x,y,z respectively
 		//DATAx0 is the least significant byte, and DATAx1 is the most significant byte
-		m_temp_raw = ((m_buffer[1] << 8) | m_buffer[0]);
+		//conversion of raw sensor data into relevant values based on constant offset values
+		m_temp = ((m_buffer[1] << 8) | m_buffer[0]) * m_temp_offset;
 
-		m_accel_raw[0] = ((m_buffer[3] << 8) | m_buffer[2]);
-		m_accel_raw[1] = ((m_buffer[5] << 8) | m_buffer[4]);
-		m_accel_raw[2] = ((m_buffer[7] << 8) | m_buffer[6]);
+		m_accel[0] = ((m_buffer[3] << 8) | m_buffer[2]) * m_accel_offsets[0];
+		m_accel[1] = ((m_buffer[5] << 8) | m_buffer[4]) * m_accel_offsets[1];
+		m_accel[2] = ((m_buffer[7] << 8) | m_buffer[6]) * m_accel_offsets[2];
 
-		m_gyro_raw[0] = ((m_buffer[9] << 8) | m_buffer[8]);
-		m_gyro_raw[1] = ((m_buffer[11] << 8) | m_buffer[10]);
-		m_gyro_raw[2] = ((m_buffer[13] << 8) | m_buffer[12]);
+		m_gyro[0] = ((m_buffer[9] << 8) | m_buffer[8]) * m_gyro_offsets[0];
+		m_gyro[1] = ((m_buffer[11] << 8) | m_buffer[10]) * m_gyro_offsets[1];
+		m_gyro[2] = ((m_buffer[13] << 8) | m_buffer[12]) * m_gyro_offsets[2];
 
-		return true;
+		return RESULT_SUCCESS;
+	}
+
+	int hasNewData()
+	{
+		//NOTE: STATUS_REG on lSM6DS33 used to check if data is available for temp/gyro/accel
+		if (m_status == STATUS_OFF)
+			return RESULT_FALSE;
+
+		//set I2C address
+		if (m_i2c.address(LSM6DS33_I2C_ADDR) != mraa::SUCCESS)
+		{
+			std::cerr << "Unable to set I2C address." << std::endl;
+			return ERROR_ADDR;
+		}
+
+		if (m_i2c.readReg(LSM6DS33_STATUS_REG,m_buffer,1) == std::invalid_argument)
+			return ERROR_READ;
+
+		uint8_t temp = 0;
+
+		if ((m_buffer[0] & 0x7) > temp)
+			return RESULT_SUCCESS;
+		else
+			return RESULT_FALSE;
 	}
 
 	//virtual bool longPoll() { return false; /*dummy*/}
@@ -223,66 +285,34 @@ public:
 	//"poll","read","get"; reads raw data from sensor and returns it; maybe into a file? or an input stream? or a member variable of the class/struct? and then preprocess function can pull from that?
 	//rawData type is a placeholder for now; will return raw sensor data
 
-	virtual float preprocess()
-	{
-		//conversion of raw sensor data into relevant values based on constant offset values
-		m_temp_processed = m_temp_raw * m_temp_offset;
-
-		m_accel_processed[0] = m_accel_raw[0] * m_accel_offsets[0];
-		m_accel_processed[1] = m_accel_raw[1] * m_accel_offsets[1];
-		m_accel_processed[2] = m_accel_raw[2] * m_accel_offsets[2];
-
-		m_gyro_processed[0] = m_gyro_raw[0] * m_gyro_offsets[0];
-		m_gyro_processed[1] = m_gyro_raw[1] * m_gyro_offsets[1];
-		m_gyro_processed[2] = m_gyro_raw[2] * m_gyro_offsets[2];
-	}
-
 	virtual void printSensorInfo()
 	{
-		std::cout << "Type: ADXL345" << std::endl;
+		std::cout << "======================================" << std::endl;
+		std::cout << "Type: LSM6DS33" << std::endl;
 		std::cout << "Number: " << getInstance() << std::endl;
-		//std::cout << "Status:     " << getStatus() << std::endl;
+		std::cout << "Status:     " << getStatus() << std::endl;
 		std::cout << "I2C BusID: " << getBusID() << std::endl;
-
-		std::cout << "Temp_Raw: " << m_temp_raw << std::endl;
-		std::cout << "Temp_Processed: " << m_temp_processed << std::endl;
-
-		std::cout << "Accel_RawX: " << m_accel_raw[0] << std::endl;
-		std::cout << "Accel_RawY: " << m_accel_raw[1] << std::endl;
-		std::cout << "Accel_RawZ: " << m_accel_raw[2] << std::endl;
-		std::cout << "Accel_ProcessedX: " << m_accel_processed[0] << std::endl;
-		std::cout << "Accel_ProcessedY: " << m_accel_processed[1] << std::endl;
-		std::cout << "Accel_ProcessedZ: " << m_accel_processed[2] << std::endl;
-
-		std::cout << "Gyro_RawX: " << m_gyro_raw[0] << std::endl;
-		std::cout << "Gyro_RawY: " << m_gyro_raw[1] << std::endl;
-		std::cout << "Gyro_RawZ: " << m_gyro_raw[2] << std::endl;
-		std::cout << "Gyro_ProcessedX: " << m_gyro_processed[0] << std::endl;
-		std::cout << "Gyro_ProcessedY: " << m_gyro_processed[1] << std::endl;
-		std::cout << "Gyro_ProcessedZ: " << m_gyro_processed[2] << std::endl;
+		std::cout << "======================================" << std::endl;
 	}
 
-	void printRawValues()
+	virtual void printValues()
 	{
 		std::cout << "======================================" << std::endl;
-		std::cout << "Temp_Raw: " << m_temp_raw << std::endl;
-		std::cout << "Accel_RawX: " << m_accel_raw[0] << std::endl;
-		std::cout << "Accel_RawY: " << m_accel_raw[1] << std::endl;
-		std::cout << "Accel_RawZ: " << m_accel_raw[2] << std::endl;
-		std::cout << "Gyro_RawX: " << m_gyro_raw[0] << std::endl;
-		std::cout << "Gyro_RawY: " << m_gyro_raw[1] << std::endl;
-		std::cout << "Gyro_RawZ: " << m_gyro_raw[2] << std::endl;
+		std::cout << "Temp: " << m_temp << std::endl;
+		std::cout << "AccelX: " << m_accel[0] << std::endl;
+		std::cout << "AccelY: " << m_accel[1] << std::endl;
+		std::cout << "AccelZ: " << m_accel[2] << std::endl;
+		std::cout << "GyroX: " << m_gyro[0] << std::endl;
+		std::cout << "GyroY: " << m_gyro[1] << std::endl;
+		std::cout << "GyroZ: " << m_gyro[2] << std::endl;
 		std::cout << "======================================" << std::endl;
 	}
 
 private:
 	mraa::I2c m_i2c;
-	float m_temp_raw;
-	float m_temp_processed;
-	float m_accel_raw[3];
-	float m_accel_processed[3];
-	float m_gyro_raw[3];
-	float m_gyro_processed[3];
+	float m_temp;
+	float m_accel[3];
+	float m_gyro[3];
 	float m_temp_offset;
 	float m_accel_offsets[3]; //offsets for temp, accel, and gyro for proper calibration purposes
 	float m_gyro_offsets[3];
