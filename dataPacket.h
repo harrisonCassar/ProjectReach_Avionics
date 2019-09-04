@@ -25,10 +25,6 @@ struct datapacket {
   float baro_altitude; // in meters
 };
 
-//can't do reference in C, so change to pointers
-//can't do reference in C, so change to pointers
-//can't do reference in C, so change to pointers
-
 bool init(datapacket& dp); {/*...*/}
 //initializes data packet's values to 0...?
 
